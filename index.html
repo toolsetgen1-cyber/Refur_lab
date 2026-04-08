@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+  <html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refur Lab - PWA Bridge</title>
+    <link rel="manifest" href="https://github.com/toolsetgen1-cyber/Refur_lab/releases/download/manifest/manifest.json">
+    <meta name="theme-color" content="#000000">
+    <style>
+      body { margin:0; display:flex; justify-content:center; align-items:center; height:100vh; background:#0d1117; color:#c9d1d9; font-family:system-ui; }
+    .loader { text-align:center; }
+    .spinner { width:40px; height:40px; border:4px solid #30363d; border-top:4px solid #58a6ff; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 16px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .error { color:#f85149; margin-top:12px; display:none; }
+        </style>
+      </head>
+      <body>
+        <div class="loader">
+          <div class="spinner"></div>
+          <p id="status">Connecting to Google Sheet...</p>
+          <p id="error" class="error"></p>
+        </div>
+        <script>
+          const SHEET_ID = '1QqMhGtViuFdShiuNLLJIRGiQeRjEOmuUpzLH3I8sF-c';
+    const SHEET_NAME = encodeURIComponent('설정');
+    const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}&range=B2`;
+
+    async function redirect() {
+            try {
+        document.getElementById('status').textContent = 'Fetching redirect URL...';
+        const res = await fetch(CSV_URL);
+        if (!res.ok) throw new Error('Sheet fetch failed: ' + res.status);
+        const text = await res.text();
+        let url = text.trim().replace(/^"|"$/g, '');
+                  if (!url || url === '') throw new Error('Cell B2 is empty');
+                  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+                  document.getElementById('status').textContent = 'Redirecting to: ' + url;
+                  window.location.href = url;
+            } catch (e) {
+        document.getElementById('status').textContent = 'Redirect failed';
+        const el = document.getElementById('error');
+        el.style.display = 'block';
+        el.textContent = e.message;
+            }
+    }
+    redirect();
+  </script>
+    </body>
+    </html>
